@@ -438,6 +438,28 @@ public class PaillierEncodedNumberTest {
       }
     }
   }
+  
+  @Test
+  public void testSignum() throws Exception {
+    for (TestConfiguration[] confs : CONFIGURATIONS) {
+      for (TestConfiguration conf : confs) {
+        BigInteger[] testNumbers = new BigInteger[] { BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE.negate(),
+            conf.maxEncoded(), conf.minEncoded() };
+        for(BigInteger n : testNumbers){
+          try{
+            EncodedNumber en = conf.context().encode(n);
+            if(en.isValid()){
+              assertEquals(en.signum(), n.signum());
+            }
+          }catch(Exception e){
+            if(!e.getClass().equals(EncodeException.class)){
+              fail("unexpected Exception");
+            }
+          }
+        }
+      }
+    }
+  }
 
   @Test
   public void testEncrypt() throws Exception {
@@ -604,5 +626,6 @@ public class PaillierEncodedNumberTest {
 
     assertFalse(defPublicKey.equals(null));
   }
+ 
 }
 

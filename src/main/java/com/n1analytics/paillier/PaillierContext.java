@@ -277,6 +277,21 @@ public class PaillierContext {
     // TODO Issue #12: optimise
     return isValid(Number.encode(value));
   }
+  
+  /**
+   * Returns the signum function of this EncodedNumber.
+   * @return -1, 0 or 1 as the value of this EncodedNumber is negative, zero or positive.
+   */
+  public int signum(EncodedNumber number){
+    if(number.value.equals(BigInteger.ZERO)){
+      return 0;
+    }
+    if(isUnsigned()){
+      return 1;
+    }
+    BigInteger halfModulus = getPublicKey().modulus.shiftRight(1);
+    return halfModulus.subtract(number.value).signum();
+  }
 
   public EncodedNumber encode(Number value) throws EncodeException {
     if (!isValid(value)) {
@@ -353,10 +368,7 @@ public class PaillierContext {
   }
 
   public EncryptedNumber encrypt(EncodedNumber encoded) {
-
     checkSameContext(encoded);
-    final BigInteger modulus = publicKey.getModulus();
-    final BigInteger modulusSquared = publicKey.getModulusSquared();
     final BigInteger value = encoded.getValue();
     final BigInteger ciphertext = publicKey.raw_encrypt_without_obfuscation(value);
     return new EncryptedNumber(this, ciphertext, encoded.getExponent(), false);
@@ -399,12 +411,34 @@ public class PaillierContext {
 
   public EncryptedNumber add(EncryptedNumber operand1, EncodedNumber operand2)
           throws PaillierContextMismatchException {
+    //we try to adjust operand2's exponent to operand1's exponent, because then the addition 
+    //of the two encrypted values will not have to perform an expensive raw_multiply.
+    int exponent1 = operand1.getExponent();
+    int exponent2 = operand2.getExponent();
+    BigInteger value2 = operand2.value;
+    if(exponent1 < exponent2){
+      value2 = value2.shiftLeft(exponent2-exponent1).mod(publicKey.getModulus());
+      return add(operand1, encrypt(new EncodedNumber(this, value2, exponent1)));
+    }
+    if(exponent1 > exponent2 && operand2.signum() == 1){
+      //test if we can shift value2 to the right without loosing information
+      //Note, this only works for positive values.
+      int diff = exponent1 - exponent2;
+      boolean canShift = true;
+      for(int i=0; i<diff; i++){ //test if last diff bits are all zero
+        canShift &= !value2.testBit(i);
+      }
+      if(canShift){
+        value2 = value2.shiftRight(exponent1-exponent2);
+        return add(operand1, encrypt(new EncodedNumber(this, value2, exponent1)));
+      }
+    }
     return add(operand1, encrypt(operand2));
   }
 
   public EncryptedNumber add(EncodedNumber operand1, EncryptedNumber operand2)
           throws PaillierContextMismatchException {
-    return add(encrypt(operand1), operand2);
+    return add(operand2, operand1);
   }
 
   public EncodedNumber add(EncodedNumber operand1, EncodedNumber operand2)
