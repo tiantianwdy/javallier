@@ -289,8 +289,10 @@ public class PaillierContext {
     if(isUnsigned()){
       return 1;
     }
+    //if this context is signed, then a negative significant is strictly greater 
+    //than modulus/2.
     BigInteger halfModulus = getPublicKey().modulus.shiftRight(1);
-    return halfModulus.subtract(number.value).signum();
+    return number.value.compareTo(halfModulus) > 1 ? -1 : 1;
   }
 
   public EncodedNumber encode(Number value) throws EncodeException {
