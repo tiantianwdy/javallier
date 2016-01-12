@@ -444,7 +444,7 @@ public class PaillierEncodedNumberTest {
     for (TestConfiguration[] confs : CONFIGURATIONS) {
       for (TestConfiguration conf : confs) {
         BigInteger[] testNumbers = new BigInteger[] { BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE.negate(),
-            conf.maxEncoded(), conf.minEncoded() };
+            conf.maxSignificand(), conf.minSignificand() };
         for(BigInteger n : testNumbers){
           try{
             EncodedNumber en = conf.context().encode(n);
