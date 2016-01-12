@@ -292,7 +292,7 @@ public class PaillierContext {
     //if this context is signed, then a negative significant is strictly greater 
     //than modulus/2.
     BigInteger halfModulus = getPublicKey().modulus.shiftRight(1);
-    return number.value.compareTo(halfModulus) > 1 ? -1 : 1;
+    return number.value.compareTo(halfModulus) > 0 ? -1 : 1;
   }
 
   public EncodedNumber encode(Number value) throws EncodeException {
