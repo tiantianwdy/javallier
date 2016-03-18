@@ -15,6 +15,7 @@ package com.n1analytics.paillier;
 
 import com.n1analytics.paillier.util.HashChain;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -41,7 +42,7 @@ import java.math.BigInteger;
  *     </li>
  * </ul>
  */
-public final class EncryptedNumber {
+public final class EncryptedNumber implements Serializable{
   /**
    * A serializer interface for {@code EncryptedNumber}.
    */

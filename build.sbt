@@ -14,7 +14,7 @@ lazy val commonSettings = Seq(
 lazy val root = project.in(file(".")).
   settings(commonSettings: _*).settings(
     name := "javallier",
-    version := "0.4.2",
+    version := "0.4.2-ser",
     description := "A Java library for Paillier partially homomorphic encryption.",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.0.13",

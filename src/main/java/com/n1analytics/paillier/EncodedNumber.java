@@ -15,6 +15,7 @@ package com.n1analytics.paillier;
 
 import com.n1analytics.paillier.util.HashChain;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -28,7 +29,7 @@ import java.math.BigInteger;
  *     <li>To perform arithmetic operations; addition, subtraction, limited multiplication and limited division.</li>
  * </ul>
  */
-public final class EncodedNumber {
+public final class EncodedNumber implements Serializable{
 
   /**
    * The Paillier context used to encode this number.

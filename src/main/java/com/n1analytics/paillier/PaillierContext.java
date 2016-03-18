@@ -17,6 +17,7 @@ package com.n1analytics.paillier;
 import com.n1analytics.paillier.util.BigIntegerUtil;
 import com.n1analytics.paillier.util.HashChain;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -57,7 +58,7 @@ import java.math.BigInteger;
  * Note you can create a PaillierContext directly from the create methods
  * on a PaillierPublicKey e.g., createSignedContext.
  */
-public class PaillierContext {
+public class PaillierContext implements Serializable{
 
   /**
    * The public key associated with this PaillierContext.
@@ -499,7 +500,7 @@ public class PaillierContext {
    */
   public EncodedNumber encode(Number value) throws EncodeException {
     if (!isValid(value)) {
-      throw new EncodeException();
+      throw new EncodeException("value:" + value.toString() + " max:" + maxSignificand + " min:" + minSignificand);
     }
 
     BigInteger significand = value.getSignificand();
@@ -573,7 +574,7 @@ public class PaillierContext {
       return new Number(value.subtract(modulus), encoded.getExponent());
     }
 
-    throw new DecodeException();
+    throw new DecodeException("value:" + value + " max:" + maxEncoded + " min:" + minEncoded);
   }
 
   /**
