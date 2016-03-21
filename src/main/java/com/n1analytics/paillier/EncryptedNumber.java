@@ -59,7 +59,7 @@ public final class EncryptedNumber implements Serializable{
   /**
    * The ciphertext.
    */
-  protected final transient BigInteger ciphertext;
+  protected final BigInteger ciphertext;
 
   /**
    * The exponent of the encrypted number.
