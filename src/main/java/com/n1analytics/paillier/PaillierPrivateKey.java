@@ -94,7 +94,7 @@ public final class PaillierPrivateKey implements Serializable{
   /**
    * A serializer interface for {@code PaillierPrivateKey}.
    */
-  static interface Serializer {
+  public static interface Serializer {
     void serialize(PaillierPublicKey publickey, BigInteger p, BigInteger q);
   }
 
@@ -144,7 +144,7 @@ public final class PaillierPrivateKey implements Serializable{
    * @param publicKey associated with this private key.
    * @param totient of the private key.
    */
-  protected PaillierPrivateKey(PaillierPublicKey publicKey, BigInteger totient) {
+  public PaillierPrivateKey(PaillierPublicKey publicKey, BigInteger totient) {
     // Some basic error checking. Note though that passing these tests does
     // not guarantee that the private key is valid.
     if (publicKey == null) {
@@ -234,8 +234,6 @@ public final class PaillierPrivateKey implements Serializable{
   }
 
   /**
-   * Returns the public key associated with this private key.
-   *
    * @return the associated public key.
    */
   public PaillierPublicKey getPublicKey() {
@@ -243,8 +241,7 @@ public final class PaillierPrivateKey implements Serializable{
   }
 
   /**
-   * Decrypts an encrypted number. Throws PaillierKeyMismatchException if the encrypted number was not
-   * encoded with the appropriate public key.
+   * Decrypts an encrypted number.
    *
    * @param encrypted EncryptedNumber to be decrypted.
    * @return the decryption result.

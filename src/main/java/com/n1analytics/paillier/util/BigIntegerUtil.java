@@ -64,7 +64,7 @@ public class BigIntegerUtil {
     try{
       Gmp.checkLoaded();
       return true;
-    }catch(Exception e){
+    }catch(Error e){
       logger.log(Level.WARNING, "can't load Gmp library. Falling back to native Java for modPow. Unfortunately, that's a 'lot' slower.", e);
       return  false;
     }
@@ -85,6 +85,23 @@ public class BigIntegerUtil {
       return base.modPow(exponent, modulus);
     }
   }
+
+  /**
+   * Computes the multiplicitive inverse of `a` in the integers, modular `b`.
+   *
+   * @param a the number to invert
+   * @param b the modulus
+   * @throws ArithmeticException if the inverse doesn't exist
+   * @return x, where a * x == 1 mod b
+   */
+  public static BigInteger invert(BigInteger a, BigInteger b) throws ArithmeticException {
+//    if(USE_GMP){
+//      // TODO use gmp if available
+//      //return Gmp.invert(a, b);
+//    } else {
+    return a.modInverse(b);
+  }
+
   /**
    * Checks whether {@code n} is positive.
    *
@@ -188,39 +205,6 @@ public class BigIntegerUtil {
       }
       return r;
     }
-  }
-
-  /**
-   * The number of bits required to represent {@code abs(n)}, excluding the
-   * sign bit. This is useful because {@code absBitLength(n) == absBitLength(n.negate)}
-   * whereas the same is not necessarily true of {@code n.bitLength()} and
-   * {@code n.negate().bitLength()}.
-   *
-   * @param n input.
-   * @return number of bits.
-   */
-  public static int absBitLength(BigInteger n) {
-    return n.abs().bitLength();
-  }
-
-  /**
-   * Converts a {@code BigInteger} to a {@code long}. Throws an ArithmeticException
-   * if the conversion can not be done exactly.
-   *
-   * @param n Number to convert.
-   * @return The converted value.
-   * @throws ArithmeticException If {@code n} cannot be exactly.
-   * represented as a long.
-   */
-  public static long longValueExact(BigInteger n) throws ArithmeticException {
-    // TODO Issue #13: optimisation?
-    if (n.compareTo(LONG_MIN_VALUE) < 0) {
-      throw new ArithmeticException("Cannot represent exactly");
-    }
-    if (n.compareTo(LONG_MAX_VALUE) > 0) {
-      throw new ArithmeticException("Cannot represent exactly");
-    }
-    return n.longValue();
   }
 
   /**

@@ -13,10 +13,13 @@
  */
 package com.n1analytics.paillier;
 
+
 import com.n1analytics.paillier.util.HashChain;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+
 
 /**
  * Represents encoded numbers, enabling Paillier encrypted operations on
@@ -29,7 +32,7 @@ import java.math.BigInteger;
  *     <li>To perform arithmetic operations; addition, subtraction, limited multiplication and limited division.</li>
  * </ul>
  */
-public final class EncodedNumber implements Serializable{
+public final class EncodedNumber implements Serializable {
 
   /**
    * The Paillier context used to encode this number.
@@ -102,13 +105,20 @@ public final class EncodedNumber implements Serializable{
   public boolean isValid() {
     return context.isValid(this);
   }
+  
+  /**
+   * Returns the signum function of this EncodedNumber.
+   * @return -1, 0 or 1 as the value of this EncodedNumber is negative, zero or positive.
+   */
+  public int signum(){
+    return context.signum(this);
+  }
 
   /**
    * Checks whether an {@code EncryptedNumber} has the same context as this {@code EncodedNumber}.
-   * Throws a PaillierContextMismatchException if the context are different.
    *
    * @param other {@code EncryptedNumber} to compare to.
-   * @return {@code other}, provided the contexts match.
+   * @return {@code other} provided the contexts match, else PaillierContextMismatchException is thrown.
    * @throws PaillierContextMismatchException if the contexts are different.
    */
   public EncryptedNumber checkSameContext(EncryptedNumber other)
@@ -118,10 +128,9 @@ public final class EncodedNumber implements Serializable{
 
   /**
    * Checks whether another {@code EncodedNumber} has the same context as this {@code EncodedNumber}.
-   * Throws a PaillierContextMismatchException if the context are different.
    *
    * @param other {@code EncodedNumber} to compare to.
-   * @return {@code other}.
+   * @return {@code other} provided the contexts match, else PaillierContextMismatchException is thrown.
    * @throws PaillierContextMismatchException if the context are different.
    */
   public EncodedNumber checkSameContext(EncodedNumber other)
@@ -130,87 +139,58 @@ public final class EncodedNumber implements Serializable{
   }
 
   /**
-   * Decode to a fixed point {@code Number} representation.
-   *
-   * @return the decoded {@code Number}.
-   * @throws ArithmeticException
-   */
-  public Number decode() throws ArithmeticException {
-    return context.decode(this);
-  }
-
-  /**
-   * Decodes to an approximated {@code BigInteger} representation.
-   *
-   * @return the decoded number.
-   */
-  public BigInteger decodeApproximateBigInteger() {
-    return decode().decodeApproximateBigInteger();
-  }
-
-  /**
-   * Decodes to a {@code BigInteger} representation.
+   * Decodes to a {@code BigInteger} representation. See
+   * {@link com.n1analytics.paillier.PaillierContext#decodeBigInteger(EncodedNumber)} for details.
    *
    * @return the decoded number.
    * @throws ArithmeticException if this {@code EncodedNumber} cannot be represented as a {@code BigInteger}.
    */
   public BigInteger decodeBigInteger() throws ArithmeticException {
-    return decode().decodeBigInteger();
+    return context.decodeBigInteger(this);
   }
 
   /**
-   * Decodes to the approximated {@code double} representation.
-   * @return the decoded number.
-   */
-  public double decodeApproximateDouble() {
-    return decode().decodeApproximateDouble();
-  }
-
-  /**
-   * Decodes this {@code EncodedNumber} to a {@code double} representation. Throws an ArithmeticException
-   * if this {@code EncodedNumber} cannot be represented as a valid {@code double}.
+   * Decodes this {@code EncodedNumber} to a {@code double} representation. See
+   * {@link com.n1analytics.paillier.PaillierContext#decodeDouble(EncodedNumber)} for details.
    *
    * @return the decoded number.
    * @throws ArithmeticException if this {@code EncodedNumber} cannot be represented as a valid {@code double}.
    */
   public double decodeDouble() throws ArithmeticException {
-    return decode().decodeDouble();
+    return context.decodeDouble(this);
   }
 
   /**
-   * Decodes this {@code EncodedNumber} to an approximated {@code long} representation. If the number
-   * cannot be represented exactly as a {@code long}, it is converted to the {@code long} representation
-   * of the lowest 64 bits.
-   *
-   * @return the decoded number.
-   */
-  public long decodeApproximateLong() {
-    return decode().decodeApproximateLong();
-  }
-
-  /**
-   * Decodes this {@code EncodedNumber} to a {@code long} representation. Throws an ArithmeticException
-   * if this cannot be represented as a valid {@code long}.
+   * Decodes this {@code EncodedNumber} to a {@code long} representation. See
+   * {@link com.n1analytics.paillier.PaillierContext#decodeLong(EncodedNumber)} for details.
    *
    * @return the decoded number.
    * @throws ArithmeticException if this cannot be represented as a valid {@code long}.
    */
   public long decodeLong() throws ArithmeticException {
-    return decode().decodeLong();
+    return context.decodeLong(this);
+  }
+  
+  public BigDecimal decodeBigDecimal() throws ArithmeticException {
+    return context.decodeBigDecimal(this);
   }
 
   /**
-   * Re-encodes this number with the specified context.
+   * Decreases the exponent of this {@code EncodedNumber} to {@code newExp}, if {@code newExp} is less than
+   * the current {@code exponent}.
+   * See {@link com.n1analytics.paillier.PaillierContext#decreaseExponentTo(EncodedNumber, int)} for details.
    *
-   * @param context the context to re-encode with.
-   * @return the re-encoded number.
+   * @param newExp the new exponent for the {@code EncodedNumber}, must be less than the current exponent.
+   * @return an {@code EncodedNumber} which exponent is equal to {@code newExp}.
    */
-  public EncodedNumber changeContext(PaillierContext context) {
-    return context.encode(decode());
+  public EncodedNumber decreaseExponentTo(int newExp) {
+    return context.decreaseExponentTo(this, newExp);
   }
 
   /**
-   * Encrypts this {@code EncodedNumber}.
+   * Encrypts this {@code EncodedNumber}. See
+   * {@link com.n1analytics.paillier.PaillierContext#encrypt(EncodedNumber)} for details.
+   *
    * @return the encrypted number.
    */
   public EncryptedNumber encrypt() {
@@ -218,7 +198,8 @@ public final class EncodedNumber implements Serializable{
   }
 
   /**
-   * Adds an {@code EncryptedNumber} to this {@code EncodedNumber}.
+   * Adds an {@code EncryptedNumber} to this {@code EncodedNumber}. See
+   * {@link com.n1analytics.paillier.PaillierContext#add(EncodedNumber, EncryptedNumber)} for details.
    *
    * @param other {@code EncryptedNumber} to be added.
    * @return the addition result.
@@ -228,23 +209,14 @@ public final class EncodedNumber implements Serializable{
   }
 
   /**
-   * Adds another {@code EncodedNumber} to this {@code EncodedNumber}.
+   * Adds another {@code EncodedNumber} to this {@code EncodedNumber}. See
+   * {@link com.n1analytics.paillier.PaillierContext#add(EncodedNumber, EncodedNumber)} for details.
    *
    * @param other {@code EncodedNumber} to be added.
    * @return the addition result.
    */
   public EncodedNumber add(EncodedNumber other) {
     return context.add(this, other);
-  }
-
-  /**
-   * Adds a {@code Number} to this {@code EncodedNumber}.
-   *
-   * @param other {@code EncodedNumber} to be added.
-   * @return the addition result.
-   */
-  public EncodedNumber add(Number other) {
-    return add(context.encode(other));
   }
 
   /**
@@ -278,8 +250,6 @@ public final class EncodedNumber implements Serializable{
   }
 
   /**
-   * Returns the additive inverse of this {@code EncodedNumber}.
-   *
    * @return additive inverse of this {@code EncodedNumber}.
    */
   public EncodedNumber additiveInverse() {
@@ -304,16 +274,6 @@ public final class EncodedNumber implements Serializable{
    */
   public EncodedNumber subtract(EncodedNumber other) {
     return context.subtract(this, other);
-  }
-
-  /**
-   * Subtracts a {@code Number} from this {@code EncodedNumber}.
-   *
-   * @param other {@code Number} to be subtracted from this.
-   * @return the subtraction result.
-   */
-  public EncodedNumber subtract(Number other) {
-    return subtract(context.encode(other));
   }
 
   /**
@@ -367,16 +327,6 @@ public final class EncodedNumber implements Serializable{
    */
   public EncodedNumber multiply(EncodedNumber other) {
     return context.multiply(this, other);
-  }
-
-  /**
-   * Multiplies a {@code Number} with this {@code EncodedNumber}.
-   *
-   * @param other {@code Number} to be multiplied with.
-   * @return the multiplication result.
-   */
-  public EncodedNumber multiply(Number other) {
-    return multiply(context.encode(other));
   }
 
   /**

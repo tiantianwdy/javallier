@@ -12,20 +12,28 @@ lazy val commonSettings = Seq(
 
 
 lazy val root = project.in(file(".")).
-  settings(commonSettings: _*).settings(
+  settings(commonSettings: _*)
+  .settings(
     name := "javallier",
-    version := "0.4.2-ser",
+    version := "0.5.1",
     description := "A Java library for Paillier partially homomorphic encryption.",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.0.13",
-      "com.novocode" % "junit-interface" % "0.11" % Test,
-      "com.squareup.jnagmp" % "jnagmp" % "1.0.1"
-    )
-  )
+      "commons-cli" % "commons-cli" % "1.3.1",
+      "commons-codec" % "commons-codec" % "1.10",
+      "com.squareup.jnagmp" % "jnagmp" % "1.0.1",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.0",
+      "com.novocode" % "junit-interface" % "0.11" % Test
+    ),
+    mainClass in Compile := Some("com.n1analytics.paillier.cli.Main")
+  ).enablePlugins(JavaAppPackaging)
 
 lazy val benchmark = project.in(file("benchmark")).
   settings(commonSettings: _*).settings(
-    name := "javallier-benchmark"
+    name := "javallier-benchmark",
+    libraryDependencies ++= Seq(
+      "com.squareup.jnagmp" % "jnagmp" % "1.0.1"
+      )
   ).dependsOn(root).
   enablePlugins(JmhPlugin)
 

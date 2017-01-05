@@ -117,17 +117,21 @@ public final class EncryptedNumber implements Serializable{
   }
 
   /**
-   * Returns the Paillier context with which this {@code EncryptedNumber} is encrypted.
-   *
-   * @return the {@code context}.
+   * @return the associated Paillier {@code context}.
    */
   public PaillierContext getContext() {
     return context;
   }
+  
+  /**
+   * Obfuscates this number only if necessary.
+   * @return a version of this encrypted number which is guaranteed to be safe.
+   */
+  public EncryptedNumber getSafeEncryptedNumber() {
+      return new EncryptedNumber(context, calculateCiphertext(), exponent, true);
+  }
 
   /**
-   * Returns the {@code ciphertext}.
-   *
    * @return the {@code ciphertext}.
    */
   public BigInteger calculateCiphertext() {
@@ -135,8 +139,6 @@ public final class EncryptedNumber implements Serializable{
   }
 
   /**
-   * Returns the {@code exponent}.
-   *
    * @return the {@code exponent}.
    */
   public int getExponent() {
@@ -147,7 +149,7 @@ public final class EncryptedNumber implements Serializable{
    * Checks whether another {@code EncryptedNumber} has the same context as this {@code EncryptedNumber}.
    *
    * @param other {@code EncryptedNumber} to compare to.
-   * @return {@code other}.
+   * @return {@code other} provided the contexts match, else PaillierContextMismatchException is thrown.
    * @throws PaillierContextMismatchException if the context is different.
    */
   public EncryptedNumber checkSameContext(EncryptedNumber other)
@@ -159,7 +161,7 @@ public final class EncryptedNumber implements Serializable{
    * Checks whether an {@code EncodedNumber} has the same context as this {@code EncryptedNumber}.
    *
    * @param other {@code EncodedNumber} to compare to.
-   * @return {@code other}.
+   * @return {@code other} if the {@code PaillierContext} match, else PaillierContextMismatchException is thrown.
    * @throws PaillierContextMismatchException if the context is different.
    */
   public EncodedNumber checkSameContext(EncodedNumber other) throws PaillierContextMismatchException {
@@ -167,7 +169,8 @@ public final class EncryptedNumber implements Serializable{
   }
 
   /**
-   * Decrypts this {@code EncryptedNumber} using a private key.
+   * Decrypts this {@code EncryptedNumber} using a private key. See
+   * {@link com.n1analytics.paillier.PaillierPrivateKey#decrypt(EncryptedNumber)} for more details.
    *
    * @param key private key to decrypt.
    * @return the decryption result.
@@ -188,7 +191,20 @@ public final class EncryptedNumber implements Serializable{
   }
 
   /**
-   * Adds another {@code EncryptedNumber} to this {@code EncryptedNumber}.
+   * Decreases the exponent of this {@code EncryptedNumber} to {@code newExp}, if {@code newExp} is less than
+   * the current {@code exponent}.
+   * See {@link com.n1analytics.paillier.PaillierContext#decreaseExponentTo(EncryptedNumber, int)} for details.
+   *
+   * @param newExp the new {@code exponent}, must be less than the current {@code exponent}.
+   * @return an {@code EncryptedNumber} representing the same value with {@code exponent} equals to {@code newExp}.
+   */
+  public EncryptedNumber decreaseExponentTo(int newExp) {
+    return context.decreaseExponentTo(this, newExp);
+  }
+
+  /**
+   * Adds another {@code EncryptedNumber} to this {@code EncryptedNumber}. See
+   * {@link com.n1analytics.paillier.PaillierContext#add(EncryptedNumber, EncryptedNumber)} for more details.
    *
    * @param other {@code EncryptedNumber} to be added.
    * @return the addition result.
@@ -198,23 +214,14 @@ public final class EncryptedNumber implements Serializable{
   }
 
   /**
-   * Adds an {@code EncodedNumber} to this {@code EncryptedNumber}.
+   * Adds an {@code EncodedNumber} to this {@code EncryptedNumber}. See
+   * {@link com.n1analytics.paillier.PaillierContext#add(EncryptedNumber, EncodedNumber)} for more details.
    *
    * @param other {@code EncodedNumber} to be added.
    * @return the addition result.
    */
   public EncryptedNumber add(EncodedNumber other) {
     return context.add(this, other);
-  }
-
-  /**
-   * Adds a {@code Number} to this {@code EncryptedNumber}.
-   *
-   * @param other {@code Number} to be added.
-   * @return the addition result.
-   */
-  public EncryptedNumber add(Number other) {
-    return add(context.encode(other));
   }
 
   /**
@@ -248,8 +255,6 @@ public final class EncryptedNumber implements Serializable{
   }
 
   /**
-   * Returns the additive inverse of this {@code EncryptedNumber}.
-   *
    * @return the additive inverse of this.
    */
   public EncryptedNumber additiveInverse() {
@@ -274,16 +279,6 @@ public final class EncryptedNumber implements Serializable{
    */
   public EncryptedNumber subtract(EncodedNumber other) {
     return context.subtract(this, other);
-  }
-
-  /**
-   * Subtracts a {@code Number} from this {@code EncryptedNumber}.
-   *
-   * @param other {@code Number} to be subtracted from this.
-   * @return the subtraction result.
-   */
-  public EncryptedNumber subtract(Number other) {
-    return subtract(context.encode(other));
   }
 
   /**
@@ -324,16 +319,6 @@ public final class EncryptedNumber implements Serializable{
    */
   public EncryptedNumber multiply(EncodedNumber other) {
     return context.multiply(this, other);
-  }
-
-  /**
-   * Multiplies a {@code Number} with this {@code EncryptedNumber}.
-   *
-   * @param other {@code Number} to be multiplied with.
-   * @return the multiplication result.
-   */
-  public EncryptedNumber multiply(Number other) {
-    return multiply(context.encode(other));
   }
 
   /**

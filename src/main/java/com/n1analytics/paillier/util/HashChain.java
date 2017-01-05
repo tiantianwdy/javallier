@@ -42,8 +42,6 @@ public class HashChain implements Serializable{
   }
 
   /**
-   * Returns the hashcode.
-   *
    * @return the hashcode.
    */
   public int hashCode() {
